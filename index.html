@@ -1,91 +1,332 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Raand Link Website</title>
+    <title>Enjoy Premium Links</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.css">
 
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f5f5f5;
+        :root {
+            --primary: #ff2a5f;
+            --secondary: #7000ff;
+            --bg-dark: #0a051b;
+            --card-bg: rgba(255, 255, 255, 0.03);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --text-light: #ffffff;
+            --text-muted: #a0aec0;
+        }
+
+        * {
+            box-sizing: border-box;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* 3D Canvas Background Fix */
+        #canvas-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Header Style */
+        header {
+            text-align: center;
+            margin-bottom: 60px;
         }
 
         h1 {
-            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+            letter-spacing: 1px;
         }
 
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+        }
+
+        /* 3D Perspective Grid */
         .gallery {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 30px;
+            perspective: 1000px; /* Crucial for 3D card effects */
         }
 
+        /* 3D Hover Card Implementation */
         .card {
-            background: white;
-            border-radius: 15px;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
             overflow: hidden;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            transition: transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease;
+            transform-style: preserve-3d;
         }
 
-        .card img {
-            width: 100%;
-            height: 200px;
-            object-fit: cover;
+        .card:hover {
+            transform: translateY(-10px) rotateX(10px) rotateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 42, 95, 0.2);
+            border-color: rgba(255, 42, 95, 0.4);
         }
 
         .card a {
             text-decoration: none;
-            color: black;
+            color: inherit;
+            display: block;
         }
 
-        .card p {
+        /* Image Wrapper with Zoom Animation */
+        .img-container {
+            width: 100%;
+            height: 320px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+        }
+
+        .card:hover img {
+            transform: scale(1.1);
+        }
+
+        /* Dark Gradient Overlay over Images */
+        .img-container::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 50%;
+            background: linear-gradient(to top, rgba(10, 5, 27, 0.9), transparent);
+        }
+
+        /* Card Text Content */
+        .card-content {
+            padding: 25px 20px;
             text-align: center;
-            padding: 10px;
-            font-weight: bold;
+            transform: translateZ(30px); /* Pushes text out in 3D space on tilt */
+        }
+
+        .card-content h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .card-content span {
+            font-size: 0.85rem;
+            color: var(--primary);
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 2px;
+            display: inline-block;
+            margin-bottom: 15px;
+        }
+
+        /* Interactive Action Button inside Cards */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 12px;
+            color: var(--text-light);
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover .btn {
+            background: linear-gradient(45deg, var(--primary), var(--secondary));
+            box-shadow: 0 5px 15px rgba(255, 42, 95, 0.4);
+            border-color: transparent;
         }
     </style>
 </head>
-
 <body>
 
-    <h1>Utkarsh Shukla - My Links</h1>
+    <div id="canvas-container"></div>
 
-    <div class="gallery">
+    <div class="container">
+        
+        <header data-aos="fade-down" data-aos-duration="1000">
+            <h1>Enjoy Pron</h1>
+            <p>Curated Premium Web Links </p>
+        </header>
 
-        <div class="card">
-            <a href="https://www.pornpics.com/pornstars/mia-khalifa/" target="_blank">
-                <img src="raand.png" alt="YouTube">
-                <p>mia-khalifa</p>
-            </a>
+        <div class="gallery">
+
+            <div class="card" data-aos="fade-up" data-aos-delay="100">
+                <a href="https://www.pornpics.com/pornstars/mia-khalifa/" target="_blank">
+                    <div class="img-container">
+                        <img src="https://cdni.pornpics.com/1280/7/633/26210531/26210531_113_5169.jpg" alt="Mia Khalifa">
+                    </div>
+                    <div class="card-content">
+                        <span>Model Directory</span>
+                        <h3>Mia Khalifa</h3>
+                        <div class="btn">View Profile <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="card" data-aos="fade-up" data-aos-delay="200">
+                <a href="https://en.girlstop.info/models.php?name=Sunny-Leone&page=1" target="_blank">
+                    <div class="img-container">
+                        <img src="https://www.bollynudez.com/wp-content/uploads/2019/01/bade-balls-wali-sunny-leone.jpg" alt="Sunny Leone">
+                    </div>
+                    <div class="card-content">
+                        <span>Gallery Stream</span>
+                        <h3>Sunny Leone</h3>
+                        <div class="btn">View Profile <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="card" data-aos="fade-up" data-aos-delay="300">
+                <a href="https://www.rat.xxx/search/sister+see+brother+naked/?sort_by=video_viewed" target="_blank">
+                    <div class="img-container">
+                        <img src="https://d2j6dbq0eux0bg.cloudfront.net/images/wysiwyg/category/102846973/0/1746749558992-1868705792/Porn_Magazines_webp.webp" alt="Search Index">
+                    </div>
+                    <div class="card-content">
+                        <span>Search Engine</span>
+                        <h3>videos</h3>
+                        <div class="btn">Launch Search <i class="fa-solid fa-arrow-up-right-from-square"></i></div>
+                    </div>
+                </a>
+            </div>
+
+            <div class="card" data-aos="fade-up" data-aos-delay="400">
+                <a href="https://ok.porn/models/blake-blossom/" target="_blank">
+                    <div class="img-container">
+                        <img src="https://www.eroticartfan.com/galleries/ftv-girls-blake-blossom-naked/ftv-girls-blake-blossom-naked-8.jpg" alt="Blake Blossom">
+                    </div>
+                    <div class="card-content">
+                        <span>Video Source</span>
+                        <h3>Blake Blossom</h3>
+                        <div class="btn">Play Video <i class="fa-solid fa-play"></i></div>
+                    </div>
+                </a>
+            </div>
+
         </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/aos/2.3.4/aos.js"></script>
+    
+    <script>
+        // 1. Initialize Animate On Scroll (AOS)
+        AOS.init({
+            once: true,
+            duration: 800,
+            easing: 'ease-out-quad'
+        });
 
-        <div class="card">
-            <a href="https://en.girlstop.info/models.php?name=Sunny-Leone&page=1" target="_blank">
-                <img src="https://girlstop.top/cat/posts/643c6e50872617.60459965/4.webp" alt="Sunny-Leone">
-                <p>Sunny-Leone</p>
-            </a>
-        </div>
+        // 2. Three.js Interactive 3D Background Animation
+        const container = document.getElementById('canvas-container');
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        container.appendChild(renderer.domElement);
 
-        <div class="card">
-            <a href="https://www.rat.xxx/search/sister+see+brother+naked/?sort_by=video_viewed" target="_blank">
-                <img src="https://images.unsplash.com/photo-1573804633927-bfcbcd909acd?w=800" alt="Google">
-                <p>Google</p>
-            </a>
-        </div>
-        <div class="card">
-            <a href="https://www.vivatube.club/video/1879598/blake-blossom-stepsister-wants-your-seed" target="_blank">
-                <img src="rand.png" alt="YouTube">
-                <p>sister</p>
-            </a>
-        </div>
+        // Generate a 3D Particle Constellation Dust field
+        const particlesGeometry = new THREE.BufferGeometry();
+        const particlesCount = 120;
+        const posArray = new Float32Array(particlesCount * 3);
 
+        for(let i=0; i < particlesCount * 3; i++) {
+            posArray[i] = (Math.random() - 0.5) * 10;
+        }
 
-    </div>
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(posArray, 3));
 
+        // Create sleek, glowing design nodes
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.03,
+            color: '#ff2a5f',
+            transparent: true,
+            opacity: 0.7
+        });
+
+        const particlesMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particlesMesh);
+        camera.position.z = 3;
+
+        // Mouse Interactivity tracking for background shift
+        let mouseX = 0;
+        let mouseY = 0;
+        document.addEventListener('mousemove', (event) => {
+            mouseX = (event.clientX / window.innerWidth) - 0.5;
+            mouseY = (event.clientY / window.innerHeight) - 0.5;
+        });
+
+        // Animation Frame Loop
+        const animate = () => {
+            requestAnimationFrame(animate);
+            
+            // Continuous rotation
+            particlesMesh.rotation.y += 0.0015;
+            particlesMesh.rotation.x += 0.0008;
+
+            // Fluid reactive movement towards mouse coordinates
+            particlesMesh.position.x += (mouseX * 0.5 - particlesMesh.position.x) * 0.05;
+            particlesMesh.position.y += (-mouseY * 0.5 - particlesMesh.position.y) * 0.05;
+
+            renderer.render(scene, camera);
+        };
+        animate();
+
+        // Responsive resize recalculation
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    </script>
 </body>
-
 </html>
